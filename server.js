@@ -4,7 +4,7 @@
 const http = require('http');
 const url = require('url');
 
-function start(route, handle) {
+exports.start = (route, handle) => {
 	http.createServer((req, res) => {
 		let pathname = url.parse(req.url).pathname;
 
@@ -13,6 +13,4 @@ function start(route, handle) {
 	}).listen('3000', () => {
 		console.log('running...');
 	});
-}
-
-exports.start = start;
+};

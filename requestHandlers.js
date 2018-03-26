@@ -7,6 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const formidable = require('formidable');
 
+let filename = '';
+
 function start(req, res) {
 	console.log('请求处理：start');
 	// exec('ls -lah', (error, stdout, stderr) => {
@@ -28,7 +30,15 @@ function upload(req, res) {
 	let form = new formidable.IncomingForm();
 	form.parse(req, (error, fields, files) => {
 		try {
-			fs.renameSync(files.upload.path, path.join(__dirname, `/tmp/test.png`));
+			console.log(files)
+			filename = files.upload.name;
+			// 跨磁盘分区移动或操作文件会有权限问题：可能导致文件移动失败
+			// fs.renameSync(files.upload.path, path.join(__dirname, `/tmp/${filename}`));
+			
+			// 使用流式操作可以正常使用
+			let readStream = fs.createReadStream(files.upload.path);
+      let writeStream = fs.createWriteStream(`./tmp/${filename}`);
+      readStream.pipe(writeStream);
 		} catch(e) {
 			console.log(e);
 		}
@@ -41,7 +51,7 @@ function upload(req, res) {
 
 function show(req, res) {
 	console.log('请求处理：show');
-	fs.readFile(path.join(__dirname, `/tmp/test.png`), 'binary', (error, fileConent) => {
+	fs.readFile(`./tmp/${filename}`, 'binary', (error, fileConent) => {
 		if (error) {
 			res.writeHead(500, {'Content-Type': 'text/plain'});
 			res.write(error + '\n');
@@ -54,6 +64,8 @@ function show(req, res) {
 	});
 }
 
-exports.start = start;
-exports.upload = upload;
-exports.show = show;
+module.exports = {
+	start,
+	upload,
+	show
+};
