@@ -1,2 +1,2 @@
 # node-upload-image
-nodejs处理图片上传
+原生nodejs + formidable处理图片上传
